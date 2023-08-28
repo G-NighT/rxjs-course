@@ -1,117 +1,80 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject, Observable, Subject, timer} from 'rxjs';
-import {Course} from '../model/course';
-import {delayWhen, filter, map, retryWhen, shareReplay, tap, withLatestFrom} from 'rxjs/operators';
-import {createHttpObservable} from './util';
-import {fromPromise} from 'rxjs/internal-compatibility';
-
+import { Injectable } from "@angular/core";
+import { BehaviorSubject, Observable, Subject, timer } from "rxjs";
+import { Course } from "../model/course";
+import {
+  delayWhen,
+  filter,
+  map,
+  retryWhen,
+  shareReplay,
+  tap,
+  withLatestFrom,
+} from "rxjs/operators";
+import { createHttpObservable } from "./util";
+import { fromPromise } from "rxjs/internal-compatibility";
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: "root",
 })
-
-
 export class Store {
+  private subject = new BehaviorSubject<Course[]>([]);
 
-    private subject = new BehaviorSubject<Course[]>([]);
+  courses$: Observable<Course[]> = this.subject.asObservable();
 
-    courses$: Observable<Course[]> = this.subject.asObservable();
+  init() {
+    const http$ = createHttpObservable("/api/courses");
 
+    http$
+      .pipe(
+        tap(() => console.log("HTTP request executed")),
+        map((res) => Object.values(res["payload"]))
+      )
+      .subscribe((courses) => this.subject.next(courses));
+  }
 
-    init() {
+  selectBeginnerCourses() {
+    return this.filterByCategory("BEGINNER");
+  }
 
-        const http$ = createHttpObservable('/api/courses');
+  selectAdvancedCourses() {
+    return this.filterByCategory("ADVANCED");
+  }
 
-        http$
-            .pipe(
-                tap(() => console.log('HTTP request executed')),
-                map(res => Object.values(res['payload']))
-            )
-            .subscribe(
-                courses => this.subject.next(courses)
-            );
-    }
+  selectCourseById(courseId: number) {
+    return this.courses$.pipe(
+      map((courses) => courses.find((course) => course.id == courseId)),
+      filter((course) => !!course)
+    );
+  }
 
-    selectBeginnerCourses() {
-        return this.filterByCategory('BEGINNER');
-    }
+  filterByCategory(category: string) {
+    return this.courses$.pipe(
+      map((courses) => courses.filter((course) => course.category == category))
+    );
+  }
 
-    selectAdvancedCourses() {
-        return this.filterByCategory('ADVANCED');
-    }
+  saveCourse(courseId: number, changes): Observable<any> {
+    const courses = this.subject.getValue();
 
-    selectCourseById(courseId:number) {
-        return this.courses$
-            .pipe(
-                map(courses => courses.find(course => course.id == courseId)),
-                filter(course => !!course)
+    const courseIndex = courses.findIndex((course) => course.id == courseId);
 
-            );
-    }
+    const newCourses = courses.slice(0);
 
-    filterByCategory(category: string) {
-        return this.courses$
-            .pipe(
-                map(courses => courses
-                    .filter(course => course.category == category))
-            );
-    }
+    newCourses[courseIndex] = {
+      ...courses[courseIndex],
+      ...changes,
+    };
 
-    saveCourse(courseId:number, changes): Observable<any> {
+    this.subject.next(newCourses);
 
-        const courses = this.subject.getValue();
-
-        const courseIndex = courses.findIndex(course => course.id == courseId);
-
-        const newCourses = courses.slice(0);
-
-        newCourses[courseIndex] = {
-            ...courses[courseIndex],
-            ...changes
-        };
-
-        this.subject.next(newCourses);
-
-        return fromPromise(fetch(`/api/courses/${courseId}`, {
-            method: 'PUT',
-            body: JSON.stringify(changes),
-            headers: {
-                'content-type': 'application/json'
-            }
-        }));
-
-    }
-
-
-
-
-
+    return fromPromise(
+      fetch(`/api/courses/${courseId}`, {
+        method: "PUT",
+        body: JSON.stringify(changes),
+        headers: {
+          "content-type": "application/json",
+        },
+      })
+    );
+  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

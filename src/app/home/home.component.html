@@ -1,31 +1,27 @@
-
 <div class="courses-panel">
+  <h3>All Courses</h3>
 
-    <h3>All Courses</h3>
+  <mat-tab-group>
+    <mat-tab label="Beginners 12">
+      <courses-card-list [courses]="beginnerCourses12$ | async">
+      </courses-card-list>
+    </mat-tab>
 
-    <mat-tab-group>
+    <mat-tab label="Advanced 12">
+      <courses-card-list
+        [courses]="advancedCourses12$ | async"
+      ></courses-card-list>
+    </mat-tab>
 
-        <mat-tab label="Beginners">
+    <mat-tab label="Beginners 13">
+      <courses-card-list [courses]="beginnerCourses13$ | async">
+      </courses-card-list>
+    </mat-tab>
 
-            <courses-card-list
-                    [courses]="beginnerCourses$ | async">
-
-            </courses-card-list>
-
-        </mat-tab>
-
-        <mat-tab label="Advanced">
-
-            <courses-card-list
-                    [courses]="advancedCourses$ | async"
-
-            ></courses-card-list>
-
-        </mat-tab>
-
-    </mat-tab-group>
-
-
-
+    <mat-tab label="Advanced 13">
+      <courses-card-list
+        [courses]="advancedCourses13$ | async"
+      ></courses-card-list>
+    </mat-tab>
+  </mat-tab-group>
 </div>
-
