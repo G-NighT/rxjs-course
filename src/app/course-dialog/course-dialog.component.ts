@@ -11,7 +11,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { Course } from "../model/course";
 import { FormBuilder, Validators, FormGroup } from "@angular/forms";
 import * as moment from "moment";
-import { fromEvent, noop } from "rxjs";
+import { fromEvent, noop, Observable } from "rxjs";
 import {
   concatMap,
   distinctUntilChanged,
@@ -34,7 +34,7 @@ export class CourseDialogComponent implements AfterViewInit {
 
   course: Course;
 
-  @ViewChild("saveButton", { static: true }) saveButton: ElementRef;
+  @ViewChild("saveButtonViewChild", { static: true }) saveButton: ElementRef;
 
   @ViewChild("searchInput", { static: true }) searchInput: ElementRef;
 
@@ -71,13 +71,26 @@ export class CourseDialogComponent implements AfterViewInit {
         saveCourse$.subscribe();
       }); */
 
-    //17
-    this.form.valueChanges
+    //17 - лучше для сохранения, чем mergeMap т.к. последовательно и сохранит ласт
+    /* this.form.valueChanges
       .pipe(
         filter(() => this.form.valid),
         concatMap((changes) => this.saveCourse(changes))
       )
+      .subscribe(); */
+
+    //19 - создастся несколько потоков в рандомном порядке
+    this.form.valueChanges
+      .pipe(
+        filter(() => this.form.valid),
+        mergeMap((changes) => this.saveCourse(changes))
+      )
       .subscribe();
+
+    //20 - заигнорит все клики пока выполняется один
+    fromEvent(this.saveButton.nativeElement, "click")
+      .pipe(exhaustMap(() => this.saveCourse(this.form.value)))
+      .subscribe(console.log);
   }
 
   saveCourse(changes) {

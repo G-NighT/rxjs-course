@@ -69,6 +69,12 @@ export class AboutComponent implements OnInit {
     const result$ = concat(source1$, source2$, source3$);
     result$.subscribe((r) => console.log(r));
     result$.subscribe(console.log);
+
+    //18
+    const interval1$ = interval(1000);
+    const interval2$ = interval1$.pipe(map((interval) => interval * 10));
+    const result18$ = merge(interval1$, interval2$, interval1$, interval2$);
+    result18$.subscribe(console.log);
   }
 }
 
