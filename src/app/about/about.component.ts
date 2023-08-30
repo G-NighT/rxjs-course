@@ -75,6 +75,19 @@ export class AboutComponent implements OnInit {
     const interval2$ = interval1$.pipe(map((interval) => interval * 10));
     const result18$ = merge(interval1$, interval2$, interval1$, interval2$);
     result18$.subscribe(console.log);
+
+    //21
+    const interval21$ = interval(1000);
+    const sub21 = interval21$.subscribe((interval) =>
+      console.log("interval21$", interval)
+    );
+    setTimeout(() => sub21.unsubscribe(), 5000);
+
+    const http21$ = createHttpObservable("/api/courses");
+    const sub21_2 = http21$.subscribe((http21) =>
+      console.log("http21$", interval)
+    );
+    setTimeout(() => sub21_2.unsubscribe(), 0);
   }
 }
 
