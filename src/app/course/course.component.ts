@@ -19,8 +19,10 @@ import {
   withLatestFrom,
   concatAll,
   shareReplay,
+  throttle,
+  throttleTime,
 } from "rxjs/operators";
-import { merge, fromEvent, Observable, concat } from "rxjs";
+import { merge, fromEvent, Observable, concat, interval } from "rxjs";
 import { Lesson } from "../model/lesson";
 import { createHttpObservable } from "../common/util";
 import { Store } from "../common/store.service";
@@ -61,7 +63,9 @@ export class CourseComponent implements OnInit, AfterViewInit {
     ).pipe(
       map((event) => event.target.value),
       startWith(""), //29
-      debounceTime(400),
+      debounceTime(400), //когда прекращаем печатать через 0,4 сек идёт запрос
+      //throttle(() => interval(500)), //30 - каждые 0,5 сек пока мы печатаем идём запрос - rate limitter
+      //throttleTime(500),
       distinctUntilChanged(),
       //24 - если убрать debounceTime и distinctUntilChanged,
       //то можно увидеть как отменяются запросы
