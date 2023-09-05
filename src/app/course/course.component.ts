@@ -60,6 +60,7 @@ export class CourseComponent implements OnInit, AfterViewInit {
       "keyup"
     ).pipe(
       map((event) => event.target.value),
+      startWith(""), //29
       debounceTime(400),
       distinctUntilChanged(),
       //24 - если убрать debounceTime и distinctUntilChanged,
