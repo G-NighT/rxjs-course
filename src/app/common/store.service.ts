@@ -40,16 +40,16 @@ export class Store {
     return this.filterByCategory("ADVANCED");
   }
 
+  filterByCategory(category: string) {
+    return this.courses$.pipe(
+      map((courses) => courses.filter((course) => course.category == category))
+    );
+  }
+
   selectCourseById(courseId: number) {
     return this.courses$.pipe(
       map((courses) => courses.find((course) => course.id == courseId)),
       filter((course) => !!course)
-    );
-  }
-
-  filterByCategory(category: string) {
-    return this.courses$.pipe(
-      map((courses) => courses.filter((course) => course.category == category))
     );
   }
 
