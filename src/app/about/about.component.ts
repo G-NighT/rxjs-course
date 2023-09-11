@@ -88,6 +88,41 @@ export class AboutComponent implements OnInit {
       console.log("http21$", interval)
     );
     setTimeout(() => sub21_2.unsubscribe(), 0);
+
+    //35
+    const subject = new Subject();
+    const series$ = subject.asObservable();
+    series$.subscribe((val) => console.log("early sub: " + val));
+    subject.next(1);
+    subject.next(2);
+    subject.next(3);
+    subject.complete();
+
+    //36
+    const subject36 = new BehaviorSubject(0);
+    const series36$ = subject36.asObservable();
+    series36$.subscribe((val) => console.log("36 - early sub: " + val));
+    subject36.next(1);
+    subject36.next(2);
+    subject36.next(333); //save in memory
+    setTimeout(() => {
+      series36$.subscribe((val) => console.log("36 - late sub: " + val)); //get 333
+      subject36.next(4);
+    }, 3000);
+
+    //37
+    //const subject37 = new AsyncSubject();
+    const subject37 = new ReplaySubject();
+    const series37$ = subject37.asObservable();
+    series37$.subscribe((val) => console.log("37 - first sub: " + val));
+    subject37.next(1);
+    subject37.next(2);
+    subject37.next(3);
+    //subject37.complete();
+    setTimeout(() => {
+      series37$.subscribe((val) => console.log("37 - second sub: " + val)); //get 333
+      subject37.next(4);
+    }, 3000);
   }
 }
 
